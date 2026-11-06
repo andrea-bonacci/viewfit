@@ -94,6 +94,7 @@ export interface RunOptions {
   format: OutputFormat;
   output: string;
   write: boolean;
+  site: boolean;
   browser: string;
   timeout: number;
   dryRun: boolean;

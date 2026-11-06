@@ -15,6 +15,7 @@ interface CliOptions {
   format: string;
   output: string;
   write: boolean;
+  site: boolean;
   root?: string;
   browser: string;
   timeout: string;
@@ -49,6 +50,11 @@ program
   .option("-f, --format <format>", "original, webp or avif", "original")
   .option("-o, --output <dir>", "output directory", "viewfit-output")
   .option("-w, --write", "overwrite the original files", false)
+  .option(
+    "--site",
+    "copy HTML/CSS/JS into the output folder and rewrite image references",
+    false,
+  )
   .option("--root <dir>", "project root used to map URLs to local files")
   .option(
     "--browser <channel>",
@@ -96,6 +102,12 @@ function normalizeOptions(target: string, raw: CliOptions): RunOptions {
     );
   }
 
+  if (raw.write && raw.site) {
+    throw new Error(
+      "--site cannot be combined with --write. Use --output to keep a copy of the site.",
+    );
+  }
+
   return {
     target,
     root: raw.root,
@@ -107,6 +119,7 @@ function normalizeOptions(target: string, raw: CliOptions): RunOptions {
     format: raw.format,
     output: raw.output,
     write: raw.write,
+    site: raw.site,
     browser: raw.browser,
     timeout,
     dryRun: raw.dryRun,

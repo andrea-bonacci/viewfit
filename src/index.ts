@@ -6,6 +6,7 @@ import { inspectPage } from "./browser/inspector.js";
 import { getDevicePreset } from "./config/devices.js";
 import { compressImage } from "./core/compress.js";
 import { analyzeImages } from "./core/recommend.js";
+import { copyStaticSite } from "./core/site.js";
 import { resolveTierScale } from "./core/tiers.js";
 import { chooseInteractiveOptions, confirmProceed } from "./report/prompts.js";
 import { renderReport } from "./report/table.js";
@@ -167,6 +168,13 @@ export async function run(options: RunOptions): Promise<void> {
 
     const selected = analyses.filter((analysis) => analysis.recommended);
     const outputDir = resolve(options.output);
+
+    if (!options.write && rootDir && outputDir === rootDir) {
+      throw new Error(
+        "--output cannot be the project root. Choose a subfolder or use --write.",
+      );
+    }
+
     const compressSpinner = ora(`Compressing ${selected.length} images...`).start();
 
     let originalBytes = 0;
@@ -203,6 +211,43 @@ export async function run(options: RunOptions): Promise<void> {
         console.log(chalk.red(`  - ${failure}`));
       }
       process.exitCode = 1;
+    }
+
+    if (options.site) {
+      if (!rootDir) {
+        console.log(
+          chalk.yellow("--site requires a local root; site copy was skipped."),
+        );
+      } else {
+        const siteSpinner = ora("Copying site files...").start();
+
+        try {
+          const analyzed = new Set(
+            analyses
+              .map((analysis) => analysis.filePath)
+              .filter((filePath): filePath is string => Boolean(filePath)),
+          );
+          const optimized = new Set(
+            selected
+              .map((analysis) => analysis.filePath)
+              .filter((filePath): filePath is string => Boolean(filePath)),
+          );
+
+          const siteResult = await copyStaticSite({
+            rootDir,
+            outputDir,
+            analyzed,
+            optimized,
+          });
+
+          siteSpinner.succeed(
+            `Copied ${siteResult.copiedFiles} files · rewrote ${siteResult.rewrittenReferences} image references`,
+          );
+        } catch (error) {
+          siteSpinner.fail("Site copy failed");
+          throw error;
+        }
+      }
     }
 
     if (options.write) {
