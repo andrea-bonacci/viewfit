@@ -36,7 +36,7 @@ program
     "Fit and compress images to their actual rendered dimensions using a headless browser.",
   )
   .version(packageJson.version)
-  .argument("[target]", "local directory or URL to inspect", ".")
+  .argument("[target]", "local directory, HTML file or URL to inspect", ".")
   .option("-d, --device <mode>", "device mode: desktop or mobile", "desktop")
   .option("--dpr <number>", "device pixel ratio override")
   .option("--viewport <width>x<height>", "viewport override, e.g. 1440x900")

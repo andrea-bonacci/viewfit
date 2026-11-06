@@ -58,12 +58,16 @@ function buildRows(
 ): Row[] {
   return analyses.map((analysis) => {
     const kinds = new Set(analysis.contexts.map((context) => context.kind));
-    const savings =
+    const magnitude =
       analysis.savingsPercent === null
+        ? null
+        : Math.abs(analysis.savingsPercent);
+    const savings =
+      magnitude === null
         ? "-"
-        : `${analysis.savingsPercent >= 0 ? "-" : "+"}${Math.abs(
-            analysis.savingsPercent,
-          ).toFixed(0)}%`;
+        : `${analysis.savingsPercent! >= 0 ? "-" : "+"}${
+            magnitude >= 99.5 ? magnitude.toFixed(1) : magnitude.toFixed(0)
+          }%`;
 
     return {
       file: truncate(displayPath(analysis, options.rootDir), MAX_FILE_WIDTH),

@@ -47,12 +47,13 @@ viewfit ./dist --interactive
 
 ## Demo
 
-A ready-to-run example lives in [`examples/demo-site`](examples/demo-site). From the repository root:
+A ready-to-run example lives in [`examples/demo-site`](examples/demo-site). It has two pages and five intentionally heavy images (about 21 MB total). From the repository root:
 
 ```bash
 npm run build
-node dist/cli.js ./examples/demo-site --browser chrome --dry-run
-node dist/cli.js ./examples/demo-site --browser chrome --device mobile --tier 80 --dry-run
+node dist/cli.js ./examples/demo-site/index.html --browser chrome --dry-run
+node dist/cli.js ./examples/demo-site/gallery.html --browser chrome --dry-run
+node dist/cli.js ./examples/demo-site/gallery.html --browser chrome --device mobile --tier 80 --dry-run
 ```
 
 ## How it works
@@ -72,7 +73,7 @@ Images that cannot be mapped to a local file (remote/CDN assets) are reported bu
 
 | Option | Description | Default |
 | --- | --- | --- |
-| `[target]` | Local directory or URL to inspect | `.` |
+| `[target]` | Local directory, HTML file or URL to inspect | `.` |
 | `-d, --device <mode>` | `desktop` or `mobile` | `desktop` |
 | `--dpr <number>` | Device pixel ratio override | preset |
 | `--viewport <w>x<h>` | Viewport override, e.g. `1440x900` | preset |

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ViewFit Demo — Gallery</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <nav class="site-nav">
+      <a class="site-nav__brand" href="index.html">ViewFit</a>
+      <div class="site-nav__links">
+        <a href="index.html">Home</a>
+        <a class="active" href="gallery.html">Gallery</a>
+      </div>
+    </nav>
+
+    <header class="hero hero--short">
+      <img class="hero__image" src="assets/gallery.jpg" alt="Abstract gallery hero" />
+      <div class="hero__content">
+        <p class="eyebrow">Demo site · page 2</p>
+        <h1>Gallery</h1>
+        <p>A 3.6k × 2.4k hero plus the same product image reused three times.</p>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="grid">
+        <article class="card">
+          <img src="assets/product.jpg" alt="Product one" />
+          <h2>Product one</h2>
+          <p>Square image, object-fit cover.</p>
+        </article>
+        <article class="card">
+          <img src="assets/product.jpg" alt="Product two" />
+          <h2>Product two</h2>
+          <p>The same file reused at another rendered size.</p>
+        </article>
+        <article class="card">
+          <img src="assets/product.jpg" alt="Product three" />
+          <h2>Product three</h2>
+          <p>ViewFit deduplicates it and keeps the largest need.</p>
+        </article>
+      </section>
+
+      <section class="thumbs">
+        <h2>Small icons</h2>
+        <div class="thumbs__row">
+          <img src="assets/thumb.png" alt="Icon one" />
+          <img src="assets/thumb.png" alt="Icon two" />
+          <img src="assets/thumb.png" alt="Icon three" />
+          <img src="assets/thumb.png" alt="Icon four" />
+        </div>
+      </section>
+
+      <p class="back"><a class="button" href="index.html">← Back to home</a></p>
+    </main>
+  </body>
+</html>

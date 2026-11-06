@@ -1,5 +1,5 @@
 import { existsSync, statSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, relative, resolve, sep } from "node:path";
 import chalk from "chalk";
 import ora from "ora";
 import { inspectPage } from "./browser/inspector.js";
@@ -30,13 +30,32 @@ export async function run(options: RunOptions): Promise<void> {
         throw new Error(`Root directory not found: ${rootDir}`);
       }
     } else {
-      const targetDir = resolve(options.target);
-      if (!isDirectory(targetDir)) {
-        throw new Error(`Target directory not found: ${targetDir}`);
+      const targetPath = resolve(options.target);
+      if (!existsSync(targetPath)) {
+        throw new Error(`Target not found: ${targetPath}`);
       }
-      rootDir = targetDir;
-      server = await startStaticServer(targetDir);
-      pageUrl = server.url;
+
+      const stats = statSync(targetPath);
+
+      if (stats.isDirectory()) {
+        rootDir = targetPath;
+        server = await startStaticServer(targetPath);
+        pageUrl = server.url;
+      } else if (stats.isFile()) {
+        let serveDir = resolve(options.root ?? dirname(targetPath));
+        let relativeFile = relative(serveDir, targetPath);
+
+        if (relativeFile.startsWith("..") || relativeFile === "") {
+          serveDir = dirname(targetPath);
+          relativeFile = relative(serveDir, targetPath);
+        }
+
+        rootDir = serveDir;
+        server = await startStaticServer(serveDir);
+        pageUrl = `${server.url}/${relativeFile.split(sep).join("/")}`;
+      } else {
+        throw new Error(`Target is not a file or directory: ${targetPath}`);
+      }
     }
 
     const preset = getDevicePreset(
