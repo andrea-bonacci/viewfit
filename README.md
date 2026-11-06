@@ -45,6 +45,16 @@ viewfit ./dist --write --yes
 viewfit ./dist --interactive
 ```
 
+## Demo
+
+A ready-to-run example lives in [`examples/demo-site`](examples/demo-site). From the repository root:
+
+```bash
+npm run build
+node dist/cli.js ./examples/demo-site --browser chrome --dry-run
+node dist/cli.js ./examples/demo-site --browser chrome --device mobile --tier 80 --dry-run
+```
+
 ## How it works
 
 1. Serves the target directory or connects to an existing URL.

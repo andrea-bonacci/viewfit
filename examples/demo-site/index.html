@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ViewFit Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <img class="hero__image" src="assets/hero.jpg" alt="Abstract gradient hero" />
+      <div class="hero__content">
+        <p class="eyebrow">Demo site</p>
+        <h1>ViewFit</h1>
+        <p>Every image here is rendered at a different size.</p>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="banner">
+        <h2>CSS background image</h2>
+        <p>This section uses <code>background-image</code> with <code>background-size: cover</code>.</p>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <img src="assets/product.jpg" alt="Product one" />
+          <h2>Product one</h2>
+          <p>Square image, object-fit cover.</p>
+        </article>
+        <article class="card">
+          <img src="assets/product.jpg" alt="Product two" />
+          <h2>Product two</h2>
+          <p>The same file reused at another rendered size.</p>
+        </article>
+        <article class="card">
+          <img src="assets/product.jpg" alt="Product three" />
+          <h2>Product three</h2>
+          <p>ViewFit deduplicates it and keeps the largest need.</p>
+        </article>
+      </section>
+
+      <section class="thumbs">
+        <h2>Small icons</h2>
+        <div class="thumbs__row">
+          <img src="assets/thumb.png" alt="Icon one" />
+          <img src="assets/thumb.png" alt="Icon two" />
+          <img src="assets/thumb.png" alt="Icon three" />
+          <img src="assets/thumb.png" alt="Icon four" />
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
