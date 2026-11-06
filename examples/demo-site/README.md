@@ -56,11 +56,24 @@ node dist/cli.js ./examples/demo-site/gallery.html --browser chrome \
   --device mobile --tier 80 --dry-run
 ```
 
-Write optimized images to a folder:
+Build a complete optimized copy of the site (images + HTML/CSS with rewritten references).
+Run both pages into the same output folder:
 
 ```bash
+node dist/cli.js ./examples/demo-site/index.html --browser chrome \
+  --device mobile --tier 75 --format webp \
+  --output examples/demo-site/optimized-mobile --site --yes
+
 node dist/cli.js ./examples/demo-site/gallery.html --browser chrome \
-  --output examples/demo-site/optimized --tier aggressive --yes
+  --device mobile --tier 75 --format webp \
+  --output examples/demo-site/optimized-mobile --site --yes
+```
+
+Then open the optimized copy:
+
+```bash
+open examples/demo-site/optimized-mobile/index.html
+open examples/demo-site/optimized-mobile/gallery.html
 ```
 
 ViewFit serves the folder automatically, so you do not need to start a server yourself. To open the site in a browser:

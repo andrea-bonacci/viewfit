@@ -35,6 +35,9 @@ viewfit ./dist --dry-run
 # Compress into an output folder (originals are kept)
 viewfit ./dist --output optimized --tier aggressive
 
+# Also copy the site and rewrite references to the new files
+viewfit ./dist --output optimized --format webp --site
+
 # Custom tier: 80% of the exact rendered size
 viewfit ./dist --tier 80 --format webp
 
@@ -66,6 +69,7 @@ node dist/cli.js ./examples/demo-site/gallery.html --browser chrome --device mob
 6. Computes the target size from the rendered box, DPR and compression tier.
 7. Prints a report with original size, rendered size, target size and estimated savings.
 8. On confirmation, resizes and re-encodes each image with Sharp.
+9. With `--site`, copies HTML/CSS/JS into the output folder and rewrites image references to the new files.
 
 Images that cannot be mapped to a local file (remote/CDN assets) are reported but not modified.
 
@@ -82,6 +86,7 @@ Images that cannot be mapped to a local file (remote/CDN assets) are reported bu
 | `-f, --format <format>` | `original`, `webp` or `avif` | `original` |
 | `-o, --output <dir>` | Output directory | `viewfit-output` |
 | `-w, --write` | Overwrite originals (requires `--format original`) | `false` |
+| `--site` | Copy HTML/CSS/JS into the output folder and rewrite image references | `false` |
 | `--root <dir>` | Root used to map URLs to local files when using a URL | none |
 | `--browser <channel>` | Playwright channel: `chromium` or `chrome` | `chromium` |
 | `--timeout <ms>` | Navigation timeout | `30000` |
