@@ -1,4 +1,8 @@
 node_modules/
+dist/
+coverage/
+viewfit-output/
 .DS_Store
 npm-debug.log*
+*.tmp
 .env

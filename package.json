@@ -1,13 +1,28 @@
 {
   "name": "viewfit",
   "version": "0.0.1",
-  "description": "Work in progress",
-  "main": "index.js",
+  "description": "Smart image fitting and compression based on actual rendered dimensions",
+  "type": "module",
+  "bin": {
+    "viewfit": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "files": [
-    "index.js"
+    "dist"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsup",
+    "dev": "tsx src/cli.ts",
+    "start": "node dist/cli.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "repository": {
     "type": "git",
@@ -17,7 +32,32 @@
     "url": "https://github.com/andrea-bonacci/viewfit/issues"
   },
   "homepage": "https://github.com/andrea-bonacci/viewfit#readme",
-  "keywords": [],
+  "keywords": [
+    "images",
+    "image-optimization",
+    "responsive-images",
+    "playwright",
+    "sharp",
+    "cli"
+  ],
   "author": "Andrea Bonacci",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^6.0.1",
+    "commander": "^15.0.0",
+    "ora": "^10.0.0",
+    "playwright": "^1.65.0",
+    "prompts": "^2.4.2",
+    "sharp": "^0.35.5",
+    "sirv": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/prompts": "^2.4.9",
+    "@typescript/typescript6": "^6.0.2",
+    "tsup": "^9.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
 }
