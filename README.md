@@ -31,6 +31,26 @@ viewfit optimize ./dist --preset web --site --yes
 
 `./dist` is the folder to analyze: whatever your build outputs (`dist`, `build`, `out`, `public`, or `.` for the current directory). When it is a folder, ViewFit recursively analyzes every `.html`/`.htm` page inside it (skipping `node_modules`, `.git` and the output folder). You can also pass a single HTML file or an already running URL.
 
+## Before / after
+
+The Chrome DevTools Network panel for the demo gallery page, before and after ViewFit. Click an image to open it full size.
+
+| Before | After |
+| --- | --- |
+| [![Before optimization](https://raw.githubusercontent.com/andrea-bonacci/viewfit/main/docs/before.webp)](https://raw.githubusercontent.com/andrea-bonacci/viewfit/main/docs/before.webp) | [![After optimization](https://raw.githubusercontent.com/andrea-bonacci/viewfit/main/docs/after.webp)](https://raw.githubusercontent.com/andrea-bonacci/viewfit/main/docs/after.webp) |
+| **12.0 MB · 12.88 s** | **893 KB · 1.21 s** |
+
+Same page and same 18 requests. Its four images go from 2.4 MB, 2.2 MB, 4.0 MB and 2.9 MB to 55 KB, 101 KB, 176 KB and 19 KB as WebP.
+
+### Single image
+
+The card is rendered at 733×949. Both images are shown at the same display width; click one to open it full size.
+
+| Before (JPG) | After (WebP) |
+| --- | --- |
+| <a href="https://raw.githubusercontent.com/andrea-bonacci/viewfit/main/examples/demo-site/assets/gallery-card-1.jpg"><img src="https://raw.githubusercontent.com/andrea-bonacci/viewfit/main/examples/demo-site/assets/gallery-card-1.jpg" width="480" alt="Before: JPG"></a> | <a href="https://raw.githubusercontent.com/andrea-bonacci/viewfit/main/docs/gallery-card-1-after.webp"><img src="https://raw.githubusercontent.com/andrea-bonacci/viewfit/main/docs/gallery-card-1-after.webp" width="480" alt="After: WebP"></a> |
+| **2.2 MB** · 3902×5050 | **101 KB** · 733×949 |
+
 ## Two commands
 
 | Command | What it does |
@@ -109,7 +129,7 @@ viewfit optimize ./dist --interactive
 
 ## Demo
 
-A ready-to-run example lives in [`examples/demo-site`](examples/demo-site). It has two pages, six high-resolution Unsplash photos and a heavy PNG icon (about 24 MB total). From the repository root:
+A ready-to-run example lives in [`examples/demo-site`](https://github.com/andrea-bonacci/viewfit/tree/main/examples/demo-site). It has two pages, six high-resolution Unsplash photos and a heavy PNG icon (about 24 MB total). The before/after screenshots above come from this example. From the repository root:
 
 ```bash
 npm run build
