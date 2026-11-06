@@ -37,36 +37,31 @@ npm run build
 npx playwright install chromium   # or use --browser chrome
 ```
 
-Home page, report only:
+Whole site, report only (all HTML pages are analyzed automatically):
 
 ```bash
-node dist/cli.js ./examples/demo-site/index.html --browser chrome --dry-run
+node dist/cli.js ./examples/demo-site --browser chrome
 ```
 
-Gallery page, report only:
+A single page, report only:
 
 ```bash
-node dist/cli.js ./examples/demo-site/gallery.html --browser chrome --dry-run
+node dist/cli.js ./examples/demo-site/gallery.html --browser chrome
 ```
 
-Gallery page on mobile with a custom 80% tier:
+Whole site on mobile with a custom 80% tier:
 
 ```bash
-node dist/cli.js ./examples/demo-site/gallery.html --browser chrome \
-  --device mobile --tier 80 --dry-run
+node dist/cli.js ./examples/demo-site --browser chrome \
+  --device mobile --tier 80
 ```
 
-Build a complete optimized copy of the site (images + HTML/CSS with rewritten references).
-Run both pages into the same output folder:
+Build a complete optimized copy of the site (images + HTML/CSS with rewritten references):
 
 ```bash
-node dist/cli.js ./examples/demo-site/index.html --browser chrome \
+node dist/cli.js optimize ./examples/demo-site --browser chrome \
   --device mobile --tier 75 --format webp \
-  --output examples/demo-site/optimized-mobile --site --yes
-
-node dist/cli.js ./examples/demo-site/gallery.html --browser chrome \
-  --device mobile --tier 75 --format webp \
-  --output examples/demo-site/optimized-mobile --site --yes
+  --out examples/demo-site/optimized-mobile --site --yes
 ```
 
 Then open the optimized copy:

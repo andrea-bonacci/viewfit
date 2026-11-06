@@ -1,6 +1,6 @@
 {
   "name": "viewfit",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Smart image fitting and compression based on actual rendered dimensions",
   "type": "module",
   "bin": {
@@ -22,7 +22,8 @@
     "start": "node dist/cli.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepack": "npm run build"
   },
   "repository": {
     "type": "git",

@@ -2,9 +2,10 @@ import { existsSync, statSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import chalk from "chalk";
 import ora from "ora";
-import { inspectPage } from "./browser/inspector.js";
+import { inspectPages } from "./browser/inspector.js";
 import { getDevicePreset } from "./config/devices.js";
 import { compressImage } from "./core/compress.js";
+import { findHtmlFiles } from "./core/pages.js";
 import { analyzeImages } from "./core/recommend.js";
 import { copyStaticSite } from "./core/site.js";
 import { resolveTierScale } from "./core/tiers.js";
@@ -18,12 +19,15 @@ export * from "./types.js";
 export { analyzeImages, requiredScale } from "./core/recommend.js";
 export { resolveTierScale, parseTier, TIER_PRESETS } from "./core/tiers.js";
 export { DEVICE_PRESETS, getDevicePreset, parseViewport } from "./config/devices.js";
+export { PRESETS, getPreset } from "./config/presets.js";
 
 export async function run(options: RunOptions): Promise<void> {
   const isUrl = /^https?:\/\//i.test(options.target);
   let rootDir = options.root ? resolve(options.root) : null;
   let server: StaticServer | null = null;
   let pageUrl = options.target;
+  let pageUrls: string[] = [options.target];
+  const outputDir = resolve(options.output);
 
   try {
     if (isUrl) {
@@ -41,7 +45,21 @@ export async function run(options: RunOptions): Promise<void> {
       if (stats.isDirectory()) {
         rootDir = targetPath;
         server = await startStaticServer(targetPath);
-        pageUrl = server.url;
+
+        const exclude =
+          outputDir !== rootDir && outputDir.startsWith(rootDir + sep)
+            ? [outputDir]
+            : [];
+        const htmlFiles = await findHtmlFiles(targetPath, { exclude });
+
+        if (htmlFiles.length === 0) {
+          throw new Error(`No HTML files found under ${targetPath}.`);
+        }
+
+        pageUrls = htmlFiles.map((filePath) =>
+          toPageUrl(server!.url, rootDir!, filePath),
+        );
+        pageUrl = pageUrls[0]!;
       } else if (stats.isFile()) {
         let serveDir = resolve(options.root ?? dirname(targetPath));
         let relativeFile = relative(serveDir, targetPath);
@@ -53,7 +71,11 @@ export async function run(options: RunOptions): Promise<void> {
 
         rootDir = serveDir;
         server = await startStaticServer(serveDir);
-        pageUrl = `${server.url}/${relativeFile.split(sep).join("/")}`;
+        pageUrl = new URL(
+          relativeFile.split(sep).join("/"),
+          `${server.url}/`,
+        ).href;
+        pageUrls = [pageUrl];
       } else {
         throw new Error(`Target is not a file or directory: ${targetPath}`);
       }
@@ -65,13 +87,16 @@ export async function run(options: RunOptions): Promise<void> {
       options.viewport,
     );
 
+    const pageCount = pageUrls.length;
+    const inspectLabel =
+      pageCount === 1 ? pageUrls[0] : `${pageCount} pages`;
     const inspectSpinner = ora(
-      `Inspecting ${pageUrl} as ${preset.name} ${preset.viewport.width}×${preset.viewport.height} @${preset.deviceScaleFactor}x`,
+      `Inspecting ${inspectLabel} as ${preset.name} ${preset.viewport.width}×${preset.viewport.height} @${preset.deviceScaleFactor}x`,
     ).start();
 
     let inspection;
     try {
-      inspection = await inspectPage(pageUrl, {
+      inspection = await inspectPages(pageUrls, {
         device: options.device,
         dpr: preset.deviceScaleFactor,
         viewport: preset.viewport,
@@ -79,15 +104,30 @@ export async function run(options: RunOptions): Promise<void> {
         browser: options.browser,
       });
       inspectSpinner.succeed(
-        `Found ${inspection.images.length} rendered image references`,
+        pageCount === 1
+          ? `Found ${inspection.images.length} rendered image references`
+          : `Found ${inspection.images.length} rendered image references across ${pageCount} pages`,
       );
+
+      if (inspection.failures.length > 0) {
+        console.log(
+          chalk.yellow(
+            `${inspection.failures.length} page(s) could not be inspected:`,
+          ),
+        );
+        for (const failure of inspection.failures) {
+          console.log(
+            chalk.yellow(`  - ${failure.pageUrl}: ${failure.message}`),
+          );
+        }
+      }
     } catch (error) {
       inspectSpinner.fail("Inspection failed");
       throw error;
     }
 
     if (inspection.images.length === 0) {
-      console.log(chalk.yellow("No rendered images found on the page."));
+      console.log(chalk.yellow("No rendered images found on the page(s)."));
       return;
     }
 
@@ -107,7 +147,7 @@ export async function run(options: RunOptions): Promise<void> {
 
     if (options.write && format !== "original") {
       throw new Error(
-        "--write keeps the original file names, so it requires --format original. Use an output directory to convert formats.",
+        "--in-place keeps the original file names, so it requires --format original. Use --out to convert formats.",
       );
     }
 
@@ -147,6 +187,7 @@ export async function run(options: RunOptions): Promise<void> {
         tierScale,
         format,
         quality,
+        pageCount: inspection.pages.length,
       }),
     );
     console.log("");
@@ -167,11 +208,10 @@ export async function run(options: RunOptions): Promise<void> {
     }
 
     const selected = analyses.filter((analysis) => analysis.recommended);
-    const outputDir = resolve(options.output);
 
     if (!options.write && rootDir && outputDir === rootDir) {
       throw new Error(
-        "--output cannot be the project root. Choose a subfolder or use --write.",
+        "--out cannot be the project root. Choose a subfolder or use --in-place.",
       );
     }
 
@@ -264,4 +304,13 @@ export async function run(options: RunOptions): Promise<void> {
 
 function isDirectory(path: string): boolean {
   return existsSync(path) && statSync(path).isDirectory();
+}
+
+function toPageUrl(
+  serverUrl: string,
+  rootDir: string,
+  filePath: string,
+): string {
+  const relativePath = relative(rootDir, filePath).split(sep).join("/");
+  return new URL(relativePath, `${serverUrl}/`).href;
 }

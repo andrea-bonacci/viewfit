@@ -2,7 +2,7 @@
 
 Fit and compress every image to the size it is actually rendered at, using a real headless browser.
 
-ViewFit inspects a local site with Playwright, measures each `<img>` and CSS `background-image` with `getBoundingClientRect()`, applies the device pixel ratio, and recommends a per-image target size. Sharp then resizes and compresses each file individually instead of applying one generic setting to everything.
+ViewFit opens your site in Chromium, measures each `<img>` and CSS `background-image` with `getBoundingClientRect()`, applies the device pixel ratio, and recommends a per-image target size. Sharp then resizes and compresses each file individually instead of applying one generic setting to everything.
 
 ## Requirements
 
@@ -14,83 +14,85 @@ ViewFit inspects a local site with Playwright, measures each `<img>` and CSS `ba
 ## Install
 
 ```bash
-npm install -g viewfit
+npm install -g viewfit        # then run: viewfit
+# or run without installing:
+npx viewfit
 ```
 
-## Usage
+## Quick start
 
 ```bash
-# Inspect the current directory (served internally) in desktop mode
-viewfit
+# Report only. Nothing is written to disk.
+viewfit ./dist
 
-# Inspect a build output directory
-viewfit ./dist --device desktop
+# Write an optimized copy of the site with one preset.
+viewfit optimize ./dist --preset web --site --yes
+```
 
-# Inspect an already running local server
-viewfit http://localhost:3000 --root . --device mobile
+`./dist` is the folder to analyze: whatever your build outputs (`dist`, `build`, `out`, `public`, or `.` for the current directory). When it is a folder, ViewFit recursively analyzes every `.html`/`.htm` page inside it (skipping `node_modules`, `.git` and the output folder). You can also pass a single HTML file or an already running URL.
 
-# Report only, do not write files
-viewfit ./dist --dry-run
+## Two commands
 
-# Compress into an output folder (originals are kept)
-viewfit ./dist --output optimized --tier aggressive
+| Command | What it does |
+| --- | --- |
+| `viewfit [target]` | Analyze and print a report. Never writes files. |
+| `viewfit inspect [target]` | Explicit name for the same report-only command. |
+| `viewfit optimize [target]` | Analyze, then write the optimized images. Asks for confirmation. |
 
-# Also copy the site and rewrite references to the new files
-viewfit ./dist --output optimized --format webp --site
+A directory target means **all HTML pages recursively**; each unique image is reported and compressed once, using the largest rendered size found across pages.
+
+## Presets
+
+`--preset` sets device, tier, format and quality with one flag. Any option passed explicitly overrides the preset.
+
+| Preset | Device | Format | Tier | Quality |
+| --- | --- | --- | --- | --- |
+| `web` | Mobile | WebP | 90% | 80 |
+| `hq` | Desktop | AVIF | 100% | 85 |
+| `fast` | Mobile | WebP | 75% | 70 |
+
+## Common examples
+
+```bash
+# Analyze a build output on desktop
+viewfit ./dist
+
+# Analyze as mobile
+viewfit ./dist --device mobile
 
 # Custom tier: 80% of the exact rendered size
-viewfit ./dist --tier 80 --format webp
+viewfit ./dist --tier 80
+
+# Write to a custom folder, converting to WebP
+viewfit optimize ./dist --format webp --out optimized
+
+# Also copy HTML/CSS/JS and rewrite image references
+viewfit optimize ./dist --preset web --site --yes
 
 # Overwrite originals (same format only)
-viewfit ./dist --write --yes
+viewfit optimize ./dist --in-place --yes
 
 # Interactive choices for tier, format and quality
-viewfit ./dist --interactive
+viewfit optimize ./dist --interactive
 ```
-
-## Demo
-
-A ready-to-run example lives in [`examples/demo-site`](examples/demo-site). It has two pages, six high-resolution Unsplash photos and a heavy PNG icon (about 24 MB total). From the repository root:
-
-```bash
-npm run build
-node dist/cli.js ./examples/demo-site/index.html --browser chrome --dry-run
-node dist/cli.js ./examples/demo-site/gallery.html --browser chrome --dry-run
-node dist/cli.js ./examples/demo-site/gallery.html --browser chrome --device mobile --tier 80 --dry-run
-```
-
-## How it works
-
-1. Serves the target directory or connects to an existing URL.
-2. Opens the page in Chromium with the selected viewport, device pixel ratio and mobile emulation.
-3. Scrolls the page to trigger lazy loading and waits for images to decode.
-4. Collects every rendered `<img>` and CSS background image with its CSS box and fit mode.
-5. Reads real dimensions and file size with Sharp.
-6. Computes the target size from the rendered box, DPR and compression tier.
-7. Prints a report with original size, rendered size, target size and estimated savings.
-8. On confirmation, resizes and re-encodes each image with Sharp.
-9. With `--site`, copies HTML/CSS/JS into the output folder and rewrites image references to the new files.
-
-Images that cannot be mapped to a local file (remote/CDN assets) are reported but not modified.
 
 ## Options
 
 | Option | Description | Default |
 | --- | --- | --- |
-| `[target]` | Local directory, HTML file or URL to inspect | `.` |
-| `-d, --device <mode>` | `desktop` or `mobile` | `desktop` |
-| `--dpr <number>` | Device pixel ratio override | preset |
-| `--viewport <w>x<h>` | Viewport override, e.g. `1440x900` | preset |
-| `-t, --tier <tier>` | `exact`, `safe`, `aggressive`, `extreme` or a number (1-100) | `exact` |
-| `-q, --quality <number>` | Encoder quality (1-100) | `80` |
-| `-f, --format <format>` | `original`, `webp` or `avif` | `original` |
-| `-o, --output <dir>` | Output directory | `viewfit-output` |
-| `-w, --write` | Overwrite originals (requires `--format original`) | `false` |
+| `[target]` | Local directory, HTML file or URL | `.` |
+| `-p, --preset <name>` | `web`, `hq` or `fast` | none |
+| `-d, --device <mode>` | `desktop` or `mobile` | preset or `desktop` |
+| `--viewport <w>x<h>` | Viewport override, e.g. `1440x900` | device preset |
+| `-t, --tier <tier>` | `exact`, `safe`, `aggressive`, `extreme` or a number (1-100) | preset or `exact` |
+| `-q, --quality <number>` | Encoder quality (1-100) | preset or `80` |
+| `-f, --format <format>` | `original`, `webp` or `avif` | preset or `original` |
+| `--out <dir>` | Output directory (only `optimize`) | `viewfit-output` |
+| `-w, --in-place` | Overwrite originals (requires `--format original`) | `false` |
 | `--site` | Copy HTML/CSS/JS into the output folder and rewrite image references | `false` |
 | `--root <dir>` | Root used to map URLs to local files when using a URL | none |
 | `--browser <channel>` | Playwright channel: `chromium` or `chrome` | `chromium` |
 | `--timeout <ms>` | Navigation timeout | `30000` |
-| `--dry-run` | Analyze and report only | `false` |
 | `-i, --interactive` | Choose tier, format and quality interactively | `false` |
 | `-y, --yes` | Skip confirmation prompts | `false` |
 | `--json` | Print the analysis as JSON | `false` |
@@ -105,11 +107,35 @@ Images that cannot be mapped to a local file (remote/CDN assets) are reported bu
 | `extreme` | 50% |
 | number | Custom percentage, e.g. `--tier 85` |
 
+## Demo
+
+A ready-to-run example lives in [`examples/demo-site`](examples/demo-site). It has two pages, six high-resolution Unsplash photos and a heavy PNG icon (about 24 MB total). From the repository root:
+
+```bash
+npm run build
+node dist/cli.js ./examples/demo-site --browser chrome
+node dist/cli.js ./examples/demo-site --browser chrome --device mobile --tier 80
+```
+
+## How it works
+
+1. Discovers every HTML page in the target directory (or uses the single file/URL).
+2. Serves the target directory and opens each page in Chromium with the selected viewport, device pixel ratio and mobile emulation.
+3. Scrolls each page to trigger lazy loading and waits for images to decode.
+4. Collects every rendered `<img>` and CSS background image with its CSS box and fit mode, merging duplicates across pages.
+5. Reads real dimensions and file size with Sharp.
+6. Computes the target size from the rendered box, DPR and compression tier.
+7. Prints a report with original size, rendered size, target size and estimated savings.
+8. With `optimize`, resizes and re-encodes each image with Sharp.
+9. With `--site`, copies HTML/CSS/JS into the output folder and rewrites image references to the new files.
+
+Images that cannot be mapped to a local file (remote/CDN assets) are reported but not modified.
+
 ## Development
 
 ```bash
 npm install
-npm run dev -- ./dist --dry-run --browser chrome
+npm run dev -- ./dist --browser chrome
 npm run typecheck
 npm test
 npm run build

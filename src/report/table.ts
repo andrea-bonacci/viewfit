@@ -10,6 +10,7 @@ export interface ReportOptions {
   tierScale: number;
   format: OutputFormat;
   quality: number;
+  pageCount?: number;
 }
 
 interface Row {
@@ -127,11 +128,16 @@ export function renderReport(
     .map((header, index) => pad(header, widths[index] ?? header.length))
     .join("  ");
 
+  const pages =
+    options.pageCount && options.pageCount > 1
+      ? ` · ${options.pageCount} pages`
+      : "";
+
   lines.push(
     chalk.bold(
       `${options.deviceName} ${options.viewport.width}×${options.viewport.height} @${options.dpr}x · tier ${Math.round(
         options.tierScale * 100,
-      )}% · ${options.format} q${options.quality}`,
+      )}% · ${options.format} q${options.quality}${pages}`,
     ),
   );
   lines.push(chalk.dim(headerLine));

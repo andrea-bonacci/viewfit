@@ -3,9 +3,16 @@ import { getDevicePreset } from "../config/devices.js";
 import type { CollectedImage, InspectOptions } from "../types.js";
 import { collectImagesInPage } from "./collector.js";
 
+export interface InspectionFailure {
+  pageUrl: string;
+  message: string;
+}
+
 export interface InspectionResult {
   images: CollectedImage[];
   pageUrl: string;
+  pages: string[];
+  failures: InspectionFailure[];
   deviceName: string;
   viewport: { width: number; height: number };
   dpr: number;
@@ -59,8 +66,28 @@ async function decodeImages(page: Page): Promise<void> {
   });
 }
 
-export async function inspectPage(
+async function inspectPageInContext(
+  page: Page,
   pageUrl: string,
+  timeout: number,
+): Promise<CollectedImage[]> {
+  await page.goto(pageUrl, {
+    waitUntil: "load",
+    timeout,
+  });
+
+  await page
+    .waitForLoadState("networkidle", { timeout: 5000 })
+    .catch(() => undefined);
+
+  await autoScroll(page);
+  await decodeImages(page);
+
+  return (await page.evaluate(collectImagesInPage)) as CollectedImage[];
+}
+
+export async function inspectPages(
+  pageUrls: string[],
   options: InspectOptions,
 ): Promise<InspectionResult> {
   const preset = getDevicePreset(options.device, options.dpr, options.viewport);
@@ -74,36 +101,45 @@ export async function inspectPage(
       hasTouch: preset.isMobile,
     });
 
-    const page = await context.newPage();
+    const images: CollectedImage[] = [];
+    const failures: InspectionFailure[] = [];
 
     try {
-      await page.goto(pageUrl, {
-        waitUntil: "load",
-        timeout: options.timeout,
-      });
+      for (const pageUrl of pageUrls) {
+        const page = await context.newPage();
 
-      await page
-        .waitForLoadState("networkidle", { timeout: 5000 })
-        .catch(() => undefined);
-
-      await autoScroll(page);
-      await decodeImages(page);
-
-      const images = (await page.evaluate(
-        collectImagesInPage,
-      )) as CollectedImage[];
-
-      return {
-        images,
-        pageUrl,
-        deviceName: preset.name,
-        viewport: preset.viewport,
-        dpr: preset.deviceScaleFactor,
-      };
+        try {
+          images.push(...(await inspectPageInContext(page, pageUrl, options.timeout)));
+        } catch (error) {
+          failures.push({
+            pageUrl,
+            message: error instanceof Error ? error.message : String(error),
+          });
+        } finally {
+          await page.close();
+        }
+      }
     } finally {
       await context.close();
     }
+
+    return {
+      images,
+      pageUrl: pageUrls[0] ?? "",
+      pages: pageUrls,
+      failures,
+      deviceName: preset.name,
+      viewport: preset.viewport,
+      dpr: preset.deviceScaleFactor,
+    };
   } finally {
     await browser.close();
   }
+}
+
+export async function inspectPage(
+  pageUrl: string,
+  options: InspectOptions,
+): Promise<InspectionResult> {
+  return inspectPages([pageUrl], options);
 }
