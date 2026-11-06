@@ -16,11 +16,11 @@
     </nav>
 
     <header class="hero">
-      <img class="hero__image" src="assets/hero.jpg" alt="Abstract gradient hero" />
+      <img class="hero__image" src="assets/index-hero.jpg" alt="High-resolution hero photo" />
       <div class="hero__content">
         <p class="eyebrow">Demo site · page 1</p>
         <h1>ViewFit</h1>
-        <p>Every image here is rendered at a different size and weighs several megabytes.</p>
+        <p>High-resolution photos, each rendered far smaller than its source file.</p>
       </div>
     </header>
 
@@ -30,16 +30,17 @@
         <p>This section uses <code>background-image</code> with <code>background-size: cover</code>.</p>
       </section>
 
-      <section class="intro">
+      <section class="feature">
+        <img src="assets/index-feature.jpg" alt="Landscape feature photo" />
         <div>
-          <h2>Two pages, five heavy images</h2>
+          <h2>A 4655 × 3103 photo shown at 520px</h2>
           <p>
-            The home page uses a full-width hero and a CSS background. The gallery
-            page reuses the same product image at multiple rendered sizes and adds
-            a large PNG icon.
+            The image is 1.9 MB on disk, but on desktop it occupies a small part
+            of the layout. ViewFit measures that box, applies the device pixel
+            ratio and recommends the real size to keep.
           </p>
+          <a class="button" href="gallery.html">Open the gallery →</a>
         </div>
-        <a class="button" href="gallery.html">Open the gallery →</a>
       </section>
     </main>
   </body>

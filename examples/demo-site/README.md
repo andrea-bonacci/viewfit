@@ -1,13 +1,27 @@
 # ViewFit demo site
 
-Two static pages with five intentionally heavy images (about 21 MB total):
+Two static pages with six high-resolution Unsplash photos plus a heavy generated PNG icon (about 24 MB total):
 
-- `index.html` — full-width hero plus a CSS `background-image`
-- `gallery.html` — large hero, the same product image reused three times and a large PNG icon
+- `index.html` — full-width hero, CSS `background-image`, and a 4655 × 3103 feature photo
+- `gallery.html` — large hero, two portrait photos in a responsive card grid, and a heavy PNG icon reused four times
 
-## Generate the assets
+## Assets
 
-The heavy images are committed, but you can regenerate them:
+| File | Dimensions | Weight | Source |
+| --- | --- | --- | --- |
+| `index-hero.jpg` | 5472 × 3648 | ~5.8 MB | Unsplash — Alina Chernovolova |
+| `index-banner.jpg` | 5184 × 3888 | ~4.7 MB | Unsplash — Declan Sun |
+| `index-feature.jpg` | 4655 × 3103 | ~1.9 MB | Unsplash — Nikoleta Marcineková |
+| `gallery-hero.jpg` | 6000 × 4002 | ~2.3 MB | Unsplash — Daniel Sessler |
+| `gallery-card-1.jpg` | 3902 × 5050 | ~2.1 MB | Unsplash — Brayden Law |
+| `gallery-card-2.jpg` | 3734 × 5601 | ~3.8 MB | Unsplash — Wenhao Ruan |
+| `thumb.png` | 1200 × 1200 | ~2.7 MB | generated |
+
+Photos are used under the [Unsplash License](https://unsplash.com/license).
+
+## Regenerate the icon
+
+The photos are committed. Only the PNG icon is generated:
 
 ```bash
 node examples/demo-site/generate-assets.mjs
@@ -55,13 +69,3 @@ ViewFit serves the folder automatically, so you do not need to start a server yo
 open examples/demo-site/index.html
 open examples/demo-site/gallery.html
 ```
-
-## Asset sizes
-
-| File | Dimensions | Weight |
-| --- | --- | --- |
-| `hero.jpg` | 4000 × 2600 | ~5.5 MB |
-| `banner.jpg` | 3200 × 1800 | ~3.1 MB |
-| `gallery.jpg` | 3600 × 2400 | ~4.8 MB |
-| `product.jpg` | 2400 × 2400 | ~2.5 MB |
-| `thumb.png` | 1200 × 1200 | ~2.7 MB |

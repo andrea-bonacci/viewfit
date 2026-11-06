@@ -47,7 +47,7 @@ viewfit ./dist --interactive
 
 ## Demo
 
-A ready-to-run example lives in [`examples/demo-site`](examples/demo-site). It has two pages and five intentionally heavy images (about 21 MB total). From the repository root:
+A ready-to-run example lives in [`examples/demo-site`](examples/demo-site). It has two pages, six high-resolution Unsplash photos and a heavy PNG icon (about 24 MB total). From the repository root:
 
 ```bash
 npm run build
