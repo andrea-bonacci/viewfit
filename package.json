@@ -1,6 +1,6 @@
 {
   "name": "viewfit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Smart image fitting and compression based on actual rendered dimensions",
   "type": "module",
   "bin": {
